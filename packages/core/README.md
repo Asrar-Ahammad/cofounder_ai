@@ -27,6 +27,11 @@
 - `config.py` (2 public symbols)
   - `Settings`: Global configuration settings for Cofunder services.
   - `get_settings`: Retrieve validated application settings instance.
+- `constraints.py` (4 public symbols)
+  - `ConstraintLimits`: Immutable business boundaries configured for a venture.
+  - `validate_spend_proposal`: Enforce spending does not exceed the venture's monthly budget cap.
+  - `validate_cac_proposal`: Enforce estimated customer acquisition cost does not exceed CAC ceiling.
+  - `validate_outreach_proposal`: Enforce outbound volume does not exceed daily messaging cap.
 - `context.py` (2 public symbols)
   - `AgentInfo`: Metadata describing an executing agent.
   - `AgentContext`: Immutable context passed into agent nodes and tool invocations.

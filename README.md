@@ -89,6 +89,14 @@ python scripts/gen_module_index.py --check
 
 ---
 
+## Project Roadmap & Status
+
+- **Phase 0: Foundations & Substrate (Complete):** Monorepo architecture, Postgres RLS, Redis Streams event bus, Shared Brain, Tool Gateway with bounded idempotency, Approval Service, System One substrate (D1, D2), Next.js 15 UI shell.
+- **Phase 1: Core Intelligence Engine (Complete):** Orchestrator Supervisor graph with milestone tracking, Market Intelligence Agent with signal triage, Validation Agent with TAM/SAM/SOM and citation-backed rubrics, Financial Agent with unit economics & hard constraint code guards, System One Decisions D3–D10, and search/scraper adapters.
+- **Phase 2: Build & Regulatory (Upcoming):** Legal RAG with cited official gazettes, Legal Gating (D11, D12), Web Agent MVP generator, and Monte Carlo simulation sandbox.
+
+---
+
 ## Environment Variables (.env)
 A `.env.example` file is provided in the repository root. Required keys include:
 - `DATABASE_URL`: PostgreSQL connection string (asyncpg / psycopg3)
@@ -98,4 +106,6 @@ A `.env.example` file is provided in the repository root. Required keys include:
 - `LANGSMITH_API_KEY`: LangSmith tracing key
 - `ANTHROPIC_API_KEY`: Anthropic Claude API key
 - `JEV_API_KEY`: TypeSafe Jev API key
-# cofounder_ai
+- `TAVILY_API_KEY`: Tavily web search API key
+- `FIRECRAWL_API_KEY`: Firecrawl web scraper API key
+
