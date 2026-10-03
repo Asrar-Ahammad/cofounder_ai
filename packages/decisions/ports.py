@@ -35,6 +35,20 @@ class Decision(BaseModel):
     model_provider: str = Field(..., description="Provider name ('jev', 'claude_haiku', etc.)")
     model_version: str = Field(..., description="Pinned model version identifier")
 
+    @field_validator("probabilities")
+    @classmethod
+    def validate_probabilities(cls, probs: dict[str, float]) -> dict[str, float]:
+        """Verify probabilities are between 0 and 1 and sum to ~1.0."""
+        if not probs:
+            raise ValueError("Probabilities dictionary cannot be empty")
+        for k, v in probs.items():
+            if v < 0.0 or v > 1.0:
+                raise ValueError(f"Probability for '{k}' must be between 0.0 and 1.0, got {v}")
+        total = sum(probs.values())
+        if not (0.95 <= total <= 1.05):
+            raise ValueError(f"Probabilities must sum to ~1.0, got {total}")
+        return probs
+
 
 class DecisionModel(Protocol):
     """Protocol for System One decision model providers."""

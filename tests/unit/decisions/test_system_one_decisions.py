@@ -1,6 +1,8 @@
-"""Unit tests for System One decisions D1 and D2 with fail-closed verification."""
+import pytest
+from pydantic import ValidationError
 
-
+from packages.core.errors import ExternalServiceError
+from packages.decisions.adapters.jev_client import JevClient
 from packages.decisions.definitions.approval_risk import (
     build_approval_risk_question,
     fail_closed_approval_risk,
@@ -11,7 +13,7 @@ from packages.decisions.definitions.screen_untrusted_content import (
 )
 from packages.decisions.policy.apply_threshold import apply_threshold
 from packages.decisions.policy.hard_rules import is_fail_closed, is_never_auto
-from packages.decisions.ports import Decision
+from packages.decisions.ports import Decision, Question
 
 
 def test_d1_approval_risk_options_and_fail_closed() -> None:
@@ -108,3 +110,35 @@ def test_apply_threshold_block_and_injection_never_auto() -> None:
         model_version="1.0",
     )
     assert apply_threshold(high_risk_decision) == "CONFIRM"
+
+
+def test_decision_probability_validation() -> None:
+    """Verify Decision model rejects invalid probabilities (negative or not summing to ~1.0)."""
+    # Negative probability
+    with pytest.raises(ValidationError):
+        Decision(
+            question_id="q1",
+            choice="low",
+            probabilities={"low": -0.1, "high": 1.1},
+            model_provider="test",
+            model_version="1.0",
+        )
+
+    # Probabilities don't sum to ~1.0
+    with pytest.raises(ValidationError):
+        Decision(
+            question_id="q1",
+            choice="low",
+            probabilities={"low": 0.3, "high": 0.3},
+            model_provider="test",
+            model_version="1.0",
+        )
+
+
+@pytest.mark.asyncio
+async def test_jev_client_unconfigured_fails_closed() -> None:
+    """Verify JevClient raises ExternalServiceError when API key is missing, enabling fail-closed flow."""
+    client = JevClient(api_key="jev-placeholder-key")
+    q = Question(id="q1", prompt="Screen this", options=["safe", "suspicious", "other"])
+    with pytest.raises(ExternalServiceError):
+        await client.decide(state={}, questions=[q])

@@ -49,17 +49,7 @@ class JevClient(DecisionModel):
             ExternalServiceError: If API call fails or times out.
         """
         if not self.api_key or self.api_key.startswith("jev-placeholder"):
-            # Mock / fallback when running in local dev without live Jev credentials
-            return [
-                Decision(
-                    question_id=q.id,
-                    choice=q.options[0],
-                    probabilities={opt: 1.0 if opt == q.options[0] else 0.0 for opt in q.options},
-                    model_provider="jev-mock",
-                    model_version=self.model_version,
-                )
-                for q in questions
-            ]
+            raise ExternalServiceError("Jev API key is not configured; cannot make live decisions")
 
         payload = {
             "model": self.model_version,

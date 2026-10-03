@@ -88,7 +88,7 @@ class InMemorySharedBrain:
                 "venture_id": venture_id,
                 "summary": summary,
                 "rationale": rationale,
-                "evidence_refs": evidence_refs,
+                "evidence_refs": list(evidence_refs),
                 "decided_by": decided_by,
             }
         )

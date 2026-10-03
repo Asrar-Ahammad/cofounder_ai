@@ -1,11 +1,15 @@
-"""Security tests for multi-tenant isolation and Row-Level Security policy enforcement."""
+"""Security tests for multi-tenant isolation and schema foreign key separation.
+
+Note: Native PostgreSQL Row-Level Security (RLS) policies require an active PostgreSQL
+instance. This unit test verifies logical isolation, multi-tenant schema integrity,
+and non-leakage under SQLite in-memory test harnesses.
+"""
 
 from uuid import uuid4
 
 import pytest
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from packages.core.models.base import Base
 from packages.core.models.tenant import Tenant
@@ -14,9 +18,9 @@ from packages.core.models.venture import Venture
 
 @pytest.mark.asyncio
 async def test_tenant_isolation_foreign_key_and_separation() -> None:
-    """Verify that distinct tenants have isolated venture records and foreign keys."""
+    """Verify that distinct tenants maintain isolated records without cross-tenant leakage."""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,6 +20,10 @@ class Venture(Base):
     """Venture aggregate root protected by Row-Level Security."""
 
     __tablename__ = "ventures"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "id", name="uq_ventures_tenant_id_id"),
+        {"comment": "PostgreSQL RLS: CREATE POLICY venture_isolation ON ventures USING (tenant_id = current_setting('app.tenant_id')::uuid)"},
+    )
 
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),

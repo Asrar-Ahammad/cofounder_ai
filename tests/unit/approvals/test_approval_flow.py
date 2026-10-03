@@ -76,3 +76,27 @@ async def test_langgraph_interrupt_and_resume_flow() -> None:
     final_snapshot = await graph.aget_state(thread_config)
     assert final_snapshot.values["status"] == "published"
     assert final_snapshot.values["action_result"] == "post-id-999"
+
+
+@pytest.mark.asyncio
+async def test_approval_service_payload_isolation_and_rejection() -> None:
+    """Verify approval is payload-specific and revoked on rejection."""
+    approval_svc = InMemoryApprovalService()
+    ctx = AgentContext(
+        tenant_id="tenant-1",
+        venture_id="venture-1",
+        run_id="run-1",
+        agent=AgentInfo(name="finance_agent", allowed_tools=frozenset(["send_payment"])),
+    )
+    req = await approval_svc.create_request(ctx, "send_payment", {"amount": 100, "to": "Alice"})
+    assert not await approval_svc.is_approved(ctx, "send_payment", {"amount": 100, "to": "Alice"})
+
+    await approval_svc.resolve_request(req.id, "approved", "founder@test.com")
+    # Exact payload is now approved
+    assert await approval_svc.is_approved(ctx, "send_payment", {"amount": 100, "to": "Alice"})
+    # Different payload for same action is NOT approved
+    assert not await approval_svc.is_approved(ctx, "send_payment", {"amount": 200, "to": "Bob"})
+
+    # Rejecting revokes approval
+    await approval_svc.resolve_request(req.id, "rejected", "founder@test.com")
+    assert not await approval_svc.is_approved(ctx, "send_payment", {"amount": 100, "to": "Alice"})

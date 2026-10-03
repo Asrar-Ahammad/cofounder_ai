@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -16,6 +16,15 @@ class StoredApproval(Base):
     """Pending and historic approval requests."""
 
     __tablename__ = "approvals"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["tenant_id", "venture_id"],
+            ["ventures.tenant_id", "ventures.id"],
+            ondelete="CASCADE",
+            name="fk_approvals_tenant_venture",
+        ),
+        {"comment": "PostgreSQL RLS: CREATE POLICY approval_isolation ON approvals USING (tenant_id = current_setting('app.tenant_id')::uuid)"},
+    )
 
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),

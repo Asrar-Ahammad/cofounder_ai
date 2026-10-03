@@ -69,8 +69,8 @@ async def get_db_session(tenant_id: str | None = None) -> AsyncGenerator[AsyncSe
         if tenant_id:
             from sqlalchemy import text
             await session.execute(
-                text("SET LOCAL app.tenant_id = :tenant_id"),
-                {"tenant_id": tenant_id},
+                text("SELECT set_config('app.tenant_id', :tenant_id, true)"),
+                {"tenant_id": str(tenant_id)},
             )
         try:
             yield session

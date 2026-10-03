@@ -1,11 +1,24 @@
 """Redis Streams event bus for publishing and consuming domain events."""
 
 import json
+from datetime import datetime
 from typing import Any
 
 import redis.asyncio as redis
 
 from packages.core.events import DomainEvent
+
+
+def _extract_field_str(fields: Any, key: str) -> str:
+    """Safely extract string field value from redis hash mapping."""
+    if not isinstance(fields, dict):
+        return ""
+    val = fields.get(key.encode("utf-8"))
+    if val is None:
+        val = fields.get(key)
+    if val is None:
+        return ""
+    return val.decode("utf-8") if isinstance(val, bytes) else str(val)
 
 
 class EventBus:
@@ -82,14 +95,16 @@ class EventBus:
         group_name: str,
         consumer_name: str,
         count: int = 10,
+        stream_id: str = ">",
     ) -> list[tuple[str, DomainEvent]]:
-        """Read pending messages for this consumer group from tenant stream.
+        """Read messages for this consumer group from tenant stream.
 
         Args:
             tenant_id: Tenant UUID string.
             group_name: Consumer group name.
             consumer_name: Unique consumer instance name.
             count: Maximum events to read.
+            stream_id: Stream position ('status >' for new, '0' for pending unacked).
 
         Returns:
             list[tuple[str, DomainEvent]]: List of (stream_message_id, DomainEvent).
@@ -98,7 +113,7 @@ class EventBus:
         raw_items: list[Any] = await self.redis.xreadgroup(
             group_name,
             consumer_name,
-            {key: ">"},
+            {key: stream_id},
             count=count,
         )
         events: list[tuple[str, DomainEvent]] = []
@@ -107,17 +122,30 @@ class EventBus:
 
         for _, messages in raw_items:
             for msg_id, fields in messages:
-                payload_dict = json.loads(fields.get(b"payload", b"{}").decode("utf-8"))
-                event = DomainEvent(
-                    id=fields[b"id"].decode("utf-8"),
-                    tenant_id=fields[b"tenant_id"].decode("utf-8"),
-                    venture_id=fields[b"venture_id"].decode("utf-8"),
-                    type=fields[b"type"].decode("utf-8"),
-                    version=int(fields.get(b"version", b"1").decode("utf-8")),
-                    payload=payload_dict,
-                    emitted_by=fields[b"emitted_by"].decode("utf-8"),
-                )
-                events.append((msg_id.decode("utf-8") if isinstance(msg_id, bytes) else str(msg_id), event))
+                raw_payload = _extract_field_str(fields, "payload")
+                payload_dict = json.loads(raw_payload) if raw_payload else {}
+                event_kwargs: dict[str, Any] = {
+                    "id": _extract_field_str(fields, "id"),
+                    "tenant_id": _extract_field_str(fields, "tenant_id"),
+                    "venture_id": _extract_field_str(fields, "venture_id"),
+                    "type": _extract_field_str(fields, "type"),
+                    "version": int(_extract_field_str(fields, "version") or "1"),
+                    "payload": payload_dict,
+                    "emitted_by": _extract_field_str(fields, "emitted_by"),
+                }
+                occurred_raw = _extract_field_str(fields, "occurred_at")
+                if occurred_raw:
+                    event_kwargs["occurred_at"] = datetime.fromisoformat(occurred_raw)
+                causation_raw = _extract_field_str(fields, "causation_id")
+                if causation_raw:
+                    event_kwargs["causation_id"] = causation_raw
+                correlation_raw = _extract_field_str(fields, "correlation_id")
+                if correlation_raw:
+                    event_kwargs["correlation_id"] = correlation_raw
+
+                event = DomainEvent(**event_kwargs)
+                formatted_msg_id = msg_id.decode("utf-8") if isinstance(msg_id, bytes) else str(msg_id)
+                events.append((formatted_msg_id, event))
         return events
 
     async def ack(self, tenant_id: str, group_name: str, message_id: str) -> None:

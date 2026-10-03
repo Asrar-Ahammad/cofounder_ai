@@ -12,30 +12,24 @@ export interface PendingApproval {
 
 interface ApprovalsInboxProps {
   initialApprovals?: PendingApproval[];
+  onResolve?: (id: string, status: "approved" | "rejected") => Promise<void> | void;
 }
 
-export function ApprovalsInbox({ initialApprovals = [] }: ApprovalsInboxProps) {
-  const [approvals, setApprovals] = useState<PendingApproval[]>(
-    initialApprovals.length > 0
-      ? initialApprovals
-      : [
-          {
-            id: "req-1",
-            action: "publish_post",
-            requestedBy: "Marketing Agent",
-            riskLevel: "medium",
-            payload: {
-              platform: "x",
-              text: "🚀 Cofunder is live! Supercharge your startup journey with our supervisor-led agent swarm.",
-              scheduled_for: "2026-10-04T10:00:00Z",
-            },
-          },
-        ]
-  );
+export function ApprovalsInbox({
+  initialApprovals = [],
+  onResolve,
+}: ApprovalsInboxProps) {
+  const [approvals, setApprovals] = useState<PendingApproval[]>(initialApprovals);
 
-  const handleResolve = (id: string, status: "approved" | "rejected") => {
-    setApprovals((prev) => prev.filter((item) => item.id !== id));
-    console.log(`Action ${id} resolved with status: ${status}`);
+  const handleResolve = async (id: string, status: "approved" | "rejected") => {
+    try {
+      if (onResolve) {
+        await onResolve(id, status);
+      }
+      setApprovals((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error(`Failed to resolve approval ${id}:`, err);
+    }
   };
 
   const getRiskBadge = (risk: PendingApproval["riskLevel"]) => {

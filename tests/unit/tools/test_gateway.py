@@ -118,3 +118,17 @@ async def test_tool_gateway_executes_and_caches_idempotency() -> None:
     res2 = await gateway.execute_tool(ctx, "publish_post", {"platform": "x", "text": "Replay test"})
     assert res2 == "result-Replay test"
     assert call_count == 1
+
+
+def test_tool_registry_rejects_duplicate_registration() -> None:
+    """Verify ToolRegistry raises ValueError when registering a duplicate tool name."""
+    registry = ToolRegistry()
+    spec = ToolSpec(
+        name="test_tool",
+        description="Test",
+        args_model=DummyPostArgs,
+        adapter_fn=lambda *a, **kw: None,
+    )
+    registry.register(spec)
+    with pytest.raises(ValueError, match="already registered"):
+        registry.register(spec)

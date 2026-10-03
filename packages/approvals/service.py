@@ -1,11 +1,35 @@
 """Approval service interface and logic for human-in-the-loop gating."""
 
+import hashlib
+import json
 from typing import Any, Protocol
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 from packages.core.context import AgentContext
+from packages.decisions.policy.hard_rules import is_never_auto
+
+
+def _compute_grant_key(
+    tenant_id: str,
+    venture_id: str,
+    action: str,
+    args: Any,
+) -> tuple[str, str, str, str]:
+    """Compute a deterministic hash key for an approved action payload."""
+    payload_str = ""
+    if isinstance(args, BaseModel):
+        payload_str = args.model_dump_json()
+    elif isinstance(args, dict):
+        try:
+            payload_str = json.dumps(args, sort_keys=True)
+        except Exception:
+            payload_str = str(sorted(args.items()))
+    elif args is not None:
+        payload_str = str(args)
+    payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
+    return (tenant_id, venture_id, action, payload_hash)
 
 
 class ApprovalRequest(BaseModel):
@@ -50,7 +74,7 @@ class InMemoryApprovalService:
         """Initialize empty approval service."""
         self.requests: dict[UUID, ApprovalRequest] = {}
         self.auto_approval_policies: dict[str, bool] = {}
-        self.granted_actions: set[tuple[str, str, str]] = set()
+        self.granted_actions: set[tuple[str, str, str, str]] = set()
 
     def set_auto_approval(self, action: str, allowed: bool) -> None:
         """Configure auto-approval policy for an action type.
@@ -61,7 +85,7 @@ class InMemoryApprovalService:
             action: The tool or action name.
             allowed: True if auto-approved, False otherwise.
         """
-        if action in ("send_payment", "file_regulatory", "sign_legal"):
+        if is_never_auto(action):
             self.auto_approval_policies[action] = False
             return
         self.auto_approval_policies[action] = allowed
@@ -97,25 +121,29 @@ class InMemoryApprovalService:
 
         req.status = status
         req.resolved_by = resolved_by
+        grant_key = _compute_grant_key(req.tenant_id, req.venture_id, req.action, req.payload)
         if status == "approved":
-            # Grant for (tenant_id, venture_id, action)
-            self.granted_actions.add((req.tenant_id, req.venture_id, req.action))
+            self.granted_actions.add(grant_key)
+        elif status == "rejected":
+            self.granted_actions.discard(grant_key)
         return True
 
     async def is_approved(
         self,
         ctx: AgentContext,
         action: str,
-        _args: Any,
+        args: Any,
     ) -> bool:
         """Check if action is pre-granted or auto-approved."""
-        # 1. Hard-coded blocks on payments and filings
-        if action in ("send_payment", "file_regulatory", "sign_legal"):
-            return (ctx.tenant_id, ctx.venture_id, action) in self.granted_actions
+        grant_key = _compute_grant_key(ctx.tenant_id, ctx.venture_id, action, args)
+
+        # 1. Hard-coded blocks on payments, legal, filings
+        if is_never_auto(action):
+            return grant_key in self.granted_actions
 
         # 2. Check auto-approval policy
         if self.auto_approval_policies.get(action, False):
             return True
 
         # 3. Check explicit approval grant
-        return (ctx.tenant_id, ctx.venture_id, action) in self.granted_actions
+        return grant_key in self.granted_actions

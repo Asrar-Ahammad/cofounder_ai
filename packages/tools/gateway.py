@@ -2,12 +2,15 @@
 
 import hashlib
 import json
+from collections import OrderedDict
 from typing import Any
 
 from packages.approvals.service import ApprovalService
 from packages.core.context import AgentContext
 from packages.core.errors import ApprovalRequired, PolicyViolation
 from packages.tools.registry import ToolRegistry, tool_registry
+
+MAX_IDEMPOTENCY_CACHE_SIZE = 1000
 
 
 class ToolGateway:
@@ -26,7 +29,7 @@ class ToolGateway:
         """
         self.approval_service = approval_service
         self.registry = registry
-        self._idempotency_cache: dict[str, Any] = {}
+        self._idempotency_cache: OrderedDict[str, Any] = OrderedDict()
 
     def compute_idempotency_key(self, run_id: str, tool_name: str, args: dict[str, Any]) -> str:
         """Calculate deterministic SHA256 idempotency key for this call.
@@ -82,8 +85,11 @@ class ToolGateway:
 
         key = self.compute_idempotency_key(ctx.run_id, name, validated_args.model_dump())
         if key in self._idempotency_cache:
+            self._idempotency_cache.move_to_end(key)
             return self._idempotency_cache[key]
 
         result = await spec.adapter_fn(ctx.tenant_id, validated_args, idempotency_key=key)
         self._idempotency_cache[key] = result
+        if len(self._idempotency_cache) > MAX_IDEMPOTENCY_CACHE_SIZE:
+            self._idempotency_cache.popitem(last=False)
         return result

@@ -31,7 +31,12 @@ class ToolRegistry:
 
         Args:
             spec: ToolSpec instance to register.
+
+        Raises:
+            ValueError: If a tool with the same name is already registered.
         """
+        if spec.name in self._tools:
+            raise ValueError(f"Tool '{spec.name}' is already registered in ToolRegistry")
         self._tools[spec.name] = spec
 
     def get(self, name: str) -> ToolSpec | None:

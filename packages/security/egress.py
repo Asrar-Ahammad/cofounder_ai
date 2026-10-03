@@ -45,6 +45,9 @@ def validate_egress_url(url: str) -> None:
     for item in addr_info:
         ip_str = item[4][0]
         ip_obj = ipaddress.ip_address(ip_str)
+        if isinstance(ip_obj, ipaddress.IPv6Address) and ip_obj.ipv4_mapped:
+            ip_obj = ip_obj.ipv4_mapped
+
         for blocked in _BLOCKED_NETWORKS:
             if ip_obj in blocked:
                 raise PolicyViolation(
