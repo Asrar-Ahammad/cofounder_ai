@@ -14,7 +14,8 @@ def calculate_problem_severity(state: ValidationState) -> ValidationState:
     """
     inputs = state.market_size_inputs
     budget_impact = float(inputs.get("economic_pain_annual_usd", 5000.0))
-    frequency_daily = bool(inputs.get("is_daily_occurrence", True))
+    raw_freq = inputs.get("is_daily_occurrence", True)
+    frequency_daily = raw_freq is True or str(raw_freq).strip().lower() in ("true", "1", "yes")
     workaround_dissatisfaction = float(inputs.get("workaround_dissatisfaction_score", 8.0))
 
     score = 4.0
@@ -27,12 +28,17 @@ def calculate_problem_severity(state: ValidationState) -> ValidationState:
 
     score = max(0.0, min(10.0, score))
     rating = "high" if score >= 7.5 else ("medium" if score >= 5.0 else "low")
-    citations = state.evidence_refs or ["https://reddit.com/r/startups", "https://g2.com/reviews"]
+    citations = list(state.evidence_refs) if state.evidence_refs else []
+
+    freq_desc = "daily frequency" if frequency_daily else "periodic frequency"
+    rationale = f"Problem severity {score:.1f}/10: ${budget_impact:,.0f} impact with {freq_desc}."
+    if not citations:
+        rationale += " Note: Citations are unverified/pending."
 
     state.problem_severity = ScoreResult(
         score=score,
         rating=rating,
-        rationale=f"Problem severity {score:.1f}/10: ${budget_impact:,.0f} impact with daily frequency.",
+        rationale=rationale,
         evidence_refs=citations,
     )
     return state

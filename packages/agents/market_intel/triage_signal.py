@@ -1,6 +1,13 @@
 """Signal triage node filtering raw intelligence into structured signals."""
 
+import re
+
 from packages.agents.market_intel.state import MarketIntelState, MarketSignal
+
+REGULATION_PATTERN = re.compile(
+    r"\b(sec|gdpr|fssai|regulation|compliance|law|statute)\b",
+    re.IGNORECASE,
+)
 
 
 def triage_raw_signals(state: MarketIntelState) -> MarketIntelState:
@@ -21,7 +28,7 @@ def triage_raw_signals(state: MarketIntelState) -> MarketIntelState:
         # Classify into signal category
         if any(term in combined for term in ("competitor", "versus", "vs", "alternative", "launch")):
             category = "competitor_move"
-        elif any(term in combined for term in ("law", "compliance", "sec", "gdpr", "regulation", "fssai")):
+        elif bool(REGULATION_PATTERN.search(combined)):
             category = "regulation"
         elif any(term in combined for term in ("hate", "love", "trend", "shift", "surge", "problem", "expensive", "lacks")):
             category = "sentiment_shift"

@@ -13,10 +13,10 @@ def calculate_market_sizing(state: ValidationState) -> ValidationState:
         ValidationState: State updated with market size calculations.
     """
     inputs = state.market_size_inputs
-    total_customers = float(inputs.get("total_addressable_customers", 100000))
-    target_geo_pct = float(inputs.get("target_geography_percentage", 0.30))
-    obtainable_pct = float(inputs.get("year_3_obtainable_percentage", 0.05))
-    acv = float(inputs.get("annual_contract_value", 1200))
+    total_customers = max(0.0, float(inputs.get("total_addressable_customers", 100000)))
+    target_geo_pct = max(0.0, min(1.0, float(inputs.get("target_geography_percentage", 0.30))))
+    obtainable_pct = max(0.0, min(1.0, float(inputs.get("year_3_obtainable_percentage", 0.05))))
+    acv = max(0.0, float(inputs.get("annual_contract_value", 1200)))
 
     tam = total_customers * acv
     sam = tam * target_geo_pct

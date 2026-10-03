@@ -14,8 +14,10 @@ def calculate_timing_score(state: ValidationState) -> ValidationState:
     """
     inputs = state.market_size_inputs
     trend_slope = float(inputs.get("search_trend_growth_pct", 25.0))
-    regulatory_catalyst = bool(inputs.get("has_regulatory_tailwinds", True))
-    tech_shift = bool(inputs.get("has_technology_catalyst", True))
+    raw_reg = inputs.get("has_regulatory_tailwinds", True)
+    regulatory_catalyst = raw_reg is True or str(raw_reg).strip().lower() in ("true", "1", "yes")
+    raw_tech = inputs.get("has_technology_catalyst", True)
+    tech_shift = raw_tech is True or str(raw_tech).strip().lower() in ("true", "1", "yes")
 
     score = 5.0
     if trend_slope > 20.0:
@@ -30,12 +32,16 @@ def calculate_timing_score(state: ValidationState) -> ValidationState:
 
     score = max(0.0, min(10.0, score))
     rating = "high" if score >= 7.5 else ("medium" if score >= 5.0 else "low")
-    citations = state.evidence_refs or ["https://trends.google.com", "https://news.ycombinator.com"]
+    citations = list(state.evidence_refs) if state.evidence_refs else []
+
+    rationale = f"Timing scored {score:.1f}/10 based on {trend_slope:.1f}% growth and tailwinds."
+    if not citations:
+        rationale += " Note: Citations are unverified/pending."
 
     state.timing_score = ScoreResult(
         score=score,
         rating=rating,
-        rationale=f"Timing scored {score:.1f}/10 based on {trend_slope:.1f}% growth and tailwinds.",
+        rationale=rationale,
         evidence_refs=citations,
     )
     return state

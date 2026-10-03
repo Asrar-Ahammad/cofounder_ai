@@ -27,7 +27,12 @@ def calculate_unit_economics(state: FinancialState) -> FinancialState:
     ltv_to_cac = ltv / cac
     payback_months = cac / gross_margin_dollars if gross_margin_dollars > 0 else Decimal("999")
 
-    break_even_customers = int(state.fixed_overhead_monthly / gross_margin_dollars) if gross_margin_dollars > 0 else 9999
+    import math
+    break_even_customers = (
+        math.ceil(state.fixed_overhead_monthly / gross_margin_dollars)
+        if gross_margin_dollars > 0
+        else 9999
+    )
     burn = state.fixed_overhead_monthly
     runway_months = int(state.monthly_budget_cap / burn) if burn > 0 else 12
 

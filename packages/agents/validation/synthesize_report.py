@@ -12,9 +12,14 @@ def synthesize_validation_report(state: ValidationState) -> ValidationState:
     Returns:
         ValidationState: State updated with recommendation and summary.
     """
-    timing = state.timing_score.score if state.timing_score else 5.0
-    severity = state.problem_severity.score if state.problem_severity else 5.0
-    som = state.market_size.som if state.market_size else 0.0
+    if state.timing_score is None or state.problem_severity is None or state.market_size is None:
+        state.recommendation = "pending"
+        state.summary = "Validation evaluation pending: awaiting timing, problem severity, or market sizing."
+        return state
+
+    timing = state.timing_score.score
+    severity = state.problem_severity.score
+    som = state.market_size.som
 
     avg_score = (timing + severity) / 2.0
     if avg_score >= 7.0 and som >= 500000.0:

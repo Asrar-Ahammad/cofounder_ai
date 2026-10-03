@@ -42,5 +42,28 @@ def update_milestone_progress(state: OrchestratorState, milestone_id: str, statu
             m.status = status
             if status == "completed":
                 m.completed_at = now_iso
+            else:
+                m.completed_at = None
             break
+    return state
+
+
+def evaluate_stage_progress(state: OrchestratorState) -> OrchestratorState:
+    """Evaluate milestone progress to advance or align the venture stage.
+
+    Args:
+        state: Active Orchestrator state.
+
+    Returns:
+        OrchestratorState: State updated with the current venture stage.
+    """
+    if not state.milestones:
+        return state
+
+    for m in state.milestones:
+        if m.status != "completed":
+            state.stage = m.stage
+            return state
+
+    state.stage = "scale"
     return state

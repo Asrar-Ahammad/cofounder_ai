@@ -25,7 +25,7 @@ class FinancialState(BaseModel):
 
     tenant_id: str
     venture_id: str
-    monthly_budget_cap: Decimal
+    monthly_budget_cap: Decimal = Field(..., ge=Decimal("0.00"), description="Monthly budget cap")
     fixed_overhead_monthly: Decimal = Decimal("500.00")
     target_price_monthly: Decimal = Decimal("49.00")
     estimated_cac: Decimal = Decimal("120.00")

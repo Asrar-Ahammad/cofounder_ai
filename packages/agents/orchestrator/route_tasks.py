@@ -2,6 +2,14 @@
 
 from packages.agents.orchestrator.state import OrchestratorState
 
+_SPECIALIST_ROUTING: dict[str, tuple[str, str]] = {
+    "m1_intel": ("market_intel", "market_intel_agent"),
+    "m2_validation": ("validation", "validation_agent"),
+    "m3_financial": ("financial", "financial_agent"),
+    "m4_build": ("web", "web_agent"),
+    "m5_launch": ("marketing", "marketing_agent"),
+}
+
 
 def route_next_venture_task(state: OrchestratorState) -> OrchestratorState:
     """Determine the next specialist agent to activate based on milestone progress.
@@ -12,30 +20,28 @@ def route_next_venture_task(state: OrchestratorState) -> OrchestratorState:
     Returns:
         OrchestratorState: State with next_action assigned.
     """
-    # 1. If human review is pending, pause
     if state.needs_human:
         state.next_action = "human"
         return state
 
-    # 2. Check unfinished milestones in sequence
     for m in state.milestones:
+        if m.status == "blocked":
+            state.needs_human = True
+            state.next_action = "human"
+            state.active_agent = None
+            state.summary = f"Milestone '{m.title}' is blocked; human intervention required."
+            return state
+
         if m.status != "completed":
-            if m.id == "m1_intel":
-                state.next_action = "market_intel"
-                state.active_agent = "market_intel_agent"
-            elif m.id == "m2_validation":
-                state.next_action = "validation"
-                state.active_agent = "validation_agent"
-            elif m.id == "m3_financial":
-                state.next_action = "financial"
-                state.active_agent = "financial_agent"
-            elif m.id == "m4_build":
-                state.next_action = "web"
-                state.active_agent = "web_agent"
-            elif m.id == "m5_launch":
-                state.next_action = "marketing"
-                state.active_agent = "marketing_agent"
-            state.summary = f"Orchestrator routed next task to '{state.next_action}' for milestone '{m.title}'."
+            routing = _SPECIALIST_ROUTING.get(m.id)
+            if routing is not None:
+                state.next_action, state.active_agent = routing
+                state.summary = f"Orchestrator routed next task to '{state.next_action}' for milestone '{m.title}'."
+            else:
+                state.needs_human = True
+                state.next_action = "human"
+                state.active_agent = None
+                state.summary = f"Unrecognized milestone '{m.id}'; routing to human review."
             return state
 
     state.next_action = "completed"

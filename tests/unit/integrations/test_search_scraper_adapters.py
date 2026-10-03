@@ -19,12 +19,13 @@ async def test_tavily_search_adapter_mock_fallback() -> None:
 
 
 @pytest.mark.asyncio
-async def test_firecrawl_scraper_adapter_mock_fallback() -> None:
-    """Verify Firecrawl scraper returns markdown content when api_key is placeholder."""
+async def test_firecrawl_scraper_rejects_placeholder_key() -> None:
+    """Verify Firecrawl scraper raises ExternalServiceError when api_key is placeholder."""
+    from packages.core.errors import ExternalServiceError
+
     adapter = FirecrawlScraperAdapter(api_key="firecrawl-placeholder-key")
-    data = await adapter.scrape(url="https://example.com/pricing")
-    assert data["url"] == "https://example.com/pricing"
-    assert "markdown" in data
+    with pytest.raises(ExternalServiceError, match="Firecrawl API key is missing"):
+        await adapter.scrape(url="https://example.com/pricing")
 
 
 @pytest.mark.asyncio

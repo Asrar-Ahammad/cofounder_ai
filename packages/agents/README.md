@@ -55,9 +55,10 @@
   - `OrchestratorAgent`: Supervisor agent coordinating specialist agents across venture milestones.
 - `orchestrator/build_graph.py` (1 public symbols)
   - `build_orchestrator_graph`: Construct and compile the master Orchestrator Supervisor graph.
-- `orchestrator/model_milestones.py` (2 public symbols)
+- `orchestrator/model_milestones.py` (3 public symbols)
   - `initialize_default_milestones`: Initialize standard venture milestones if none exist.
   - `update_milestone_progress`: Update progress for a specific milestone.
+  - `evaluate_stage_progress`: Evaluate milestone progress to advance or align the venture stage.
 - `orchestrator/route_tasks.py` (1 public symbols)
   - `route_next_venture_task`: Determine the next specialist agent to activate based on milestone progress.
 - `orchestrator/state.py` (2 public symbols)

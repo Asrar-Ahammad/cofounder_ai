@@ -10,6 +10,8 @@ from packages.core.errors import PolicyViolation
 class ConstraintLimits(BaseModel):
     """Immutable business boundaries configured for a venture."""
 
+    model_config = {"frozen": True}
+
     budget_cap: Decimal = Field(..., ge=0, description="Monthly spending ceiling")
     max_cac: Decimal = Field(..., ge=0, description="Maximum customer acquisition cost ceiling")
     outreach_cap: int = Field(..., ge=0, description="Daily outbound message volume cap")
