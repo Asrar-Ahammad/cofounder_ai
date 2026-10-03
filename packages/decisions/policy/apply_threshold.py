@@ -29,8 +29,13 @@ def apply_threshold(
     if action_name and is_never_auto(action_name):
         return "CONFIRM"
 
-    if decision.choice == "other":
+    # Reject and fail-closed choices must never execute autonomously
+    if decision.choice in ("other", "block", "injection"):
         return "ESCALATE"
+
+    # For approval risk scoring, only 'low' risk can ever be auto-approved
+    if decision.question_id == "approval_risk" and decision.choice != "low":
+        return "CONFIRM" if decision.choice in ("medium", "high") else "ESCALATE"
 
     prob = decision.probabilities.get(decision.choice, 0.0)
 

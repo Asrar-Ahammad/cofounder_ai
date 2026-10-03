@@ -78,3 +78,33 @@ def test_apply_threshold_escalates_on_other_or_low_confidence() -> None:
         model_version="1.0",
     )
     assert apply_threshold(other_decision) == "ESCALATE"
+
+
+def test_apply_threshold_block_and_injection_never_auto() -> None:
+    """Verify that high-confidence block or injection classifications never return AUTO."""
+    block_decision = Decision(
+        question_id="approval_risk",
+        choice="block",
+        probabilities={"low": 0.0, "medium": 0.0, "high": 0.0, "block": 0.99, "other": 0.01},
+        model_provider="test",
+        model_version="1.0",
+    )
+    assert apply_threshold(block_decision) == "ESCALATE"
+
+    injection_decision = Decision(
+        question_id="screen_untrusted_content",
+        choice="injection",
+        probabilities={"safe": 0.0, "suspicious": 0.0, "injection": 0.99, "other": 0.01},
+        model_provider="test",
+        model_version="1.0",
+    )
+    assert apply_threshold(injection_decision) == "ESCALATE"
+
+    high_risk_decision = Decision(
+        question_id="approval_risk",
+        choice="high",
+        probabilities={"low": 0.0, "medium": 0.0, "high": 0.99, "block": 0.0, "other": 0.01},
+        model_provider="test",
+        model_version="1.0",
+    )
+    assert apply_threshold(high_risk_decision) == "CONFIRM"
