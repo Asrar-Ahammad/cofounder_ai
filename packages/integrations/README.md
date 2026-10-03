@@ -18,6 +18,11 @@
 ### Files & Manifest
 
 - `__init__.py`
+- `adapters/__init__.py`
+- `adapters/firecrawl_scraper.py` (1 public symbols)
+  - `FirecrawlScraperAdapter`: Adapter for scraping and markdown conversion via Firecrawl API.
+- `adapters/tavily_search.py` (1 public symbols)
+  - `TavilySearchAdapter`: Adapter for executing web search queries via Tavily API.
 - `ports.py` (5 public symbols)
   - `SocialPublisher`: Port for publishing social media content across platforms.
   - `EmailSender`: Port for sending transactional and outreach emails.
