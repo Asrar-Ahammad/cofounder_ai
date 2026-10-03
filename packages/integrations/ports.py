@@ -126,3 +126,49 @@ class PaymentGateway(Protocol):
             str: Hosted checkout URL.
         """
         ...
+
+
+class CalendarScheduler(Protocol):
+    """Port for calendar booking and availability synchronization."""
+
+    async def list_available_slots(
+        self,
+        *,
+        tenant_id: str,
+        start_date: str,
+        end_date: str,
+    ) -> list[dict[str, Any]]:
+        """List available booking slots in ISO date format.
+
+        Args:
+            tenant_id: Tenant UUID string.
+            start_date: Beginning date in ISO format (YYYY-MM-DD).
+            end_date: Ending date in ISO format (YYYY-MM-DD).
+
+        Returns:
+            list[dict[str, Any]]: List of slot objects containing start_time, end_time.
+        """
+        ...
+
+    async def create_booking(
+        self,
+        *,
+        tenant_id: str,
+        attendee_email: str,
+        attendee_name: str,
+        start_time: str,
+        idempotency_key: str,
+    ) -> dict[str, Any]:
+        """Create a confirmed calendar booking.
+
+        Args:
+            tenant_id: Tenant UUID string.
+            attendee_email: Prospect or customer email.
+            attendee_name: Attendee full name.
+            start_time: ISO start timestamp.
+            idempotency_key: Deterministic idempotency hash.
+
+        Returns:
+            dict[str, Any]: Confirmed booking details including booking_id and meeting_url.
+        """
+        ...

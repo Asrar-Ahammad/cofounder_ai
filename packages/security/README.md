@@ -14,6 +14,9 @@
 ### Files & Manifest
 
 - `__init__.py`
+- `crypto.py` (2 public symbols)
+  - `encrypt_token`: Encrypt sensitive OAuth token bound to tenant and context.
+  - `decrypt_token`: Decrypt token using tenant key and verify encryption context.
 - `egress.py` (1 public symbols)
   - `validate_egress_url`: Validate that target URL does not resolve to private, loopback, or metadata addresses.
 

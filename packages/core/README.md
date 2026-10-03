@@ -65,6 +65,10 @@
   - `Tenant`: Customer tenant aggregate root.
 - `models/venture.py` (1 public symbols)
   - `Venture`: Venture aggregate root protected by Row-Level Security.
+- `suppression.py` (3 public symbols)
+  - `add_to_suppression_list`: Add an email address to the tenant's suppression list.
+  - `is_email_suppressed`: Check if an email address is suppressed from outbound communications.
+  - `clear_suppression_list`: Clear suppression registry (primarily for unit test isolation).
 
 <!-- END GENERATED -->
 
