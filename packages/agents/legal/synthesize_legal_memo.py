@@ -1,10 +1,10 @@
-"""Legal memorandum synthesis node generating grounded analysis or formal abstention."""
+"""Legal memorandum synthesis node generating grounded analysis, clarification, or formal abstention."""
 
 from packages.agents.legal.state import LegalState
 
 
 def synthesize_legal_memorandum(state: LegalState) -> LegalState:
-    """Generate structured statutory memorandum with explicit section citations.
+    """Generate structured statutory memorandum with explicit section/article citations.
 
     Args:
         state: Active Legal agent state.
@@ -22,15 +22,25 @@ def synthesize_legal_memorandum(state: LegalState) -> LegalState:
         state.summary = f"Legal agent strictly abstained on out-of-corpus query: '{state.query}'."
         return state
 
+    if state.decision == "clarify":
+        state.analysis = (
+            f"CLARIFICATION REQUIRED: The query '{state.query}' has ambiguous statutory overlap "
+            f"in jurisdiction '{state.jurisdiction}'. Please clarify the specific regulatory scope "
+            "(e.g., data privacy consent, corporate formation, or registered office filings)."
+        )
+        state.summary = f"Legal agent requested statutory scope clarification for query: '{state.query}'."
+        return state
+
     # Synthesize grounded answer
     lines = [f"# Statutory Compliance Synthesis: {state.query}", ""]
     for chunk in state.retrieved_chunks:
         act = chunk["act_name"]
         sec = chunk["section_number"]
+        sec_type = chunk.get("section_type", "Section")
         title = chunk["section_title"]
         text = chunk["text"]
         url = chunk["source_url"]
-        lines.append(f"### {act} — Section {sec}: {title}")
+        lines.append(f"### {act} — {sec_type} {sec}: {title}")
         lines.append(f"> \"{text}\"")
         lines.append(f"*Source: [{url}]({url})*\n")
 

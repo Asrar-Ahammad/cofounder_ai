@@ -31,12 +31,14 @@ def test_web_agent_generation_and_sanitization() -> None:
         '<script>alert("pwned")</script>'
         '<img src="x" onerror="alert(1)">'
         '<a href="javascript:stealCookie()">Click me</a>'
+        '<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">Data link</a>'
     )
 
     state = sanitize_landing_page_html(state)
     assert "<script>" not in state.sanitized_html
     assert "onerror=" not in state.sanitized_html
     assert "javascript:" not in state.sanitized_html
+    assert "data:text/html" not in state.sanitized_html
 
 
 def test_web_agent_compliance_screening_and_deployment() -> None:
@@ -47,6 +49,7 @@ def test_web_agent_compliance_screening_and_deployment() -> None:
         venture_name="CleanApp",
         tagline="Fast Developer Documentation",
         value_proposition="Generate clean docs from source code in seconds.",
+        needs_approval=False,
     )
     clean_state = generate_landing_page_html(clean_state)
     clean_state = sanitize_landing_page_html(clean_state)
@@ -58,6 +61,23 @@ def test_web_agent_compliance_screening_and_deployment() -> None:
     assert clean_state.sandbox_url is not None
     assert "cofundersites.com/preview" in clean_state.sandbox_url
 
+    # Staged copy when founder approval is required
+    staged_state = WebAgentState(
+        tenant_id="t1",
+        venture_id="v1",
+        venture_name="StagedApp",
+        tagline="Developer Tooling",
+        value_proposition="Continuous integration insights.",
+        needs_approval=True,
+    )
+    staged_state = generate_landing_page_html(staged_state)
+    staged_state = sanitize_landing_page_html(staged_state)
+    staged_state = screen_landing_page_compliance(staged_state)
+    staged_state = deploy_to_sandbox_environment(staged_state)
+    assert staged_state.is_deployed is False
+    assert staged_state.sandbox_url is None
+    assert "awaiting explicit founder approval" in staged_state.summary
+
     # Flagged copy
     flagged_state = WebAgentState(
         tenant_id="t1",
@@ -65,11 +85,12 @@ def test_web_agent_compliance_screening_and_deployment() -> None:
         venture_name="CryptoScam",
         tagline="Guaranteed ROI In 30 Days",
         value_proposition="100% risk-free profit with zero downside.",
+        needs_approval=False,
     )
     flagged_state = generate_landing_page_html(flagged_state)
     flagged_state = sanitize_landing_page_html(flagged_state)
     flagged_state = screen_landing_page_compliance(flagged_state)
-    assert flagged_state.compliance_status == "flagged"
+    assert flagged_state.compliance_status == "regulated_claim"
 
     flagged_state = deploy_to_sandbox_environment(flagged_state)
     assert flagged_state.is_deployed is False
@@ -79,7 +100,7 @@ def test_web_agent_compliance_screening_and_deployment() -> None:
 
 @pytest.mark.asyncio
 async def test_web_agent_graph_execution() -> None:
-    """Verify Web Agent compiled LangGraph executes end-to-end."""
+    """Verify Web Agent compiled LangGraph executes end-to-end with approval."""
     agent = WebAgent()
     graph = agent.build_graph()
 
@@ -89,6 +110,7 @@ async def test_web_agent_graph_execution() -> None:
         venture_name="DataFlow AI",
         tagline="Real-time ETL Pipelines",
         value_proposition="Automate data streaming without complex infrastructure.",
+        needs_approval=False,
     )
 
     final_state = await graph.ainvoke(state)

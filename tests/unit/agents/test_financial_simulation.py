@@ -34,6 +34,13 @@ def test_simulate_financial_scenarios_variance() -> None:
     # Break-even customer counts
     assert best["break_even_customers"] <= base["break_even_customers"] <= worst["break_even_customers"]
 
+    # Verify churn rate, runway, and dynamic margin fields
+    assert "churn_rate_monthly" in best and "runway_months" in best
+    assert "gross_margin_percentage" in best and "gross_margin_percentage" in worst
+    assert Decimal(best["churn_rate_monthly"]) < Decimal(base["churn_rate_monthly"]) < Decimal(worst["churn_rate_monthly"])
+    assert Decimal(best["gross_margin_percentage"]) > Decimal(worst["gross_margin_percentage"])
+    assert Decimal(best["runway_months"]) > Decimal(worst["runway_months"])
+
     # Assumptions should be highlighted
     assert len(state.assumptions) >= 3
     assert any("CAC" in a or "Customer Acquisition Cost" in a for a in state.assumptions)

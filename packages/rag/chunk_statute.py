@@ -5,7 +5,7 @@ import re
 from packages.rag.models import StatuteChunk
 
 _SECTION_PATTERN = re.compile(
-    r"(?:^|\n)(?:Section|Article)\s+([0-9A-Za-z]+)[\.\:\-\s]+([^\n]+)\n(.*?)(?=(?:\n(?:Section|Article)\s+[0-9A-Za-z]+|\Z))",
+    r"(?:^|\n)(Section|Article)\s+([0-9A-Za-z]+)[\.\:\-\s]+([^\n]+)\n(.*?)(?=(?:\n(?:Section|Article)\s+[0-9A-Za-z]+|\Z))",
     re.DOTALL | re.IGNORECASE,
 )
 
@@ -33,11 +33,13 @@ def chunk_statute_document(
     matches = list(_SECTION_PATTERN.finditer(raw_text))
 
     for match in matches:
-        sec_num = match.group(1).strip()
-        sec_title = match.group(2).strip()
-        body = match.group(3).strip()
+        sec_type = match.group(1).capitalize()
+        sec_num = match.group(2).strip()
+        sec_title = match.group(3).strip()
+        body = match.group(4).strip()
 
-        chunk_id = f"{jurisdiction}_{act_name.lower().replace(' ', '_')}_s{sec_num}"
+        prefix = "a" if sec_type == "Article" else "s"
+        chunk_id = f"{jurisdiction}_{act_name.lower().replace(' ', '_')}_{prefix}{sec_num}"
         chunks.append(
             StatuteChunk(
                 id=chunk_id,
@@ -45,6 +47,7 @@ def chunk_statute_document(
                 jurisdiction=jurisdiction,
                 section_number=sec_num,
                 section_title=sec_title,
+                section_type=sec_type,
                 text=body if body else sec_title,
                 source_url=source_url,
                 enacted_year=enacted_year,

@@ -18,6 +18,12 @@ def deploy_to_sandbox_environment(state: WebAgentState) -> WebAgentState:
         state.summary = "Deployment halted: compliance screening flagged copy requiring founder review."
         return state
 
+    if state.needs_approval:
+        state.is_deployed = False
+        state.sandbox_url = None
+        state.summary = "Deployment staged: awaiting explicit founder approval before live sandbox publication."
+        return state
+
     subdomain = f"{state.tenant_id.lower()}-{state.venture_id.lower()}".replace("_", "-")
     state.sandbox_url = f"https://{subdomain}.cofundersites.com/preview"
     state.is_deployed = True

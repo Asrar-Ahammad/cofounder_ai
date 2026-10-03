@@ -4,14 +4,15 @@ import re
 
 from packages.agents.web.state import WebAgentState
 
-# Regex filters stripping active scripts and inline executable handlers
+# Regex filters stripping active scripts, inline event handlers, and unsafe protocols
 _SCRIPT_TAG_RE = re.compile(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script\s*>", re.IGNORECASE)
 _EVENT_HANDLER_RE = re.compile(r"\s+on[a-zA-Z]+\s*=\s*(?:'[^']*'|\"[^\"]*\"|[^\s>]+)", re.IGNORECASE)
 _JS_PROTOCOL_RE = re.compile(r"""(?:href|src)\s*=\s*['"]\s*javascript:[^'"]*['"]""", re.IGNORECASE)
+_DATA_URI_RE = re.compile(r"""(?:href|src)\s*=\s*['"]\s*data:[^'"]*['"]""", re.IGNORECASE)
 
 
 def sanitize_landing_page_html(state: WebAgentState) -> WebAgentState:
-    """Sanitize generated landing page HTML by stripping executable scripts and event handlers.
+    """Sanitize generated landing page HTML by stripping executable scripts, handlers, and data URIs.
 
     Args:
         state: Active Web agent state with generated_html.
@@ -26,6 +27,8 @@ def sanitize_landing_page_html(state: WebAgentState) -> WebAgentState:
     cleaned = _EVENT_HANDLER_RE.sub("", cleaned)
     # Strip javascript: schemes in href/src
     cleaned = _JS_PROTOCOL_RE.sub('href="#"', cleaned)
+    # Strip data: URIs in href/src to prevent inline XSS payloads
+    cleaned = _DATA_URI_RE.sub('href="#"', cleaned)
 
     state.sanitized_html = cleaned.strip()
     return state

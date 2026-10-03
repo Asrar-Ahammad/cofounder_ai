@@ -26,13 +26,14 @@ def retrieve_relevant_statutes(state: LegalState) -> LegalState:
     citations = []
     for match in matches:
         chunk = match.chunk
-        citation = f"{chunk.act_name} Section {chunk.section_number} ({chunk.source_url})"
+        citation = f"{chunk.act_name} {chunk.section_type} {chunk.section_number} ({chunk.source_url})"
         chunks_data.append(
             {
                 "id": chunk.id,
                 "act_name": chunk.act_name,
                 "section_number": chunk.section_number,
                 "section_title": chunk.section_title,
+                "section_type": chunk.section_type,
                 "text": chunk.text,
                 "source_url": chunk.source_url,
                 "score": match.score,

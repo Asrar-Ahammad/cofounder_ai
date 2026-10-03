@@ -13,9 +13,15 @@ class StatuteChunk(BaseModel):
     jurisdiction: str = Field(..., description="Legal jurisdiction code, e.g., 'IN', 'US-DE', 'EU'")
     section_number: str = Field(..., description="Statutory section or article number")
     section_title: str = Field(..., description="Title or heading of the section")
+    section_type: str = Field(default="Section", description="Heading type: 'Section' or 'Article'")
     text: str = Field(..., description="Verbatim statutory text content")
     source_url: str = Field(..., description="Official government gazette or registry URL")
     enacted_year: int = Field(..., description="Year of enactment or notification")
+
+    @property
+    def citation(self) -> str:
+        """Standard statutory citation string."""
+        return f"{self.act_name}, {self.section_type} {self.section_number} ({self.enacted_year})"
 
 
 class RetrievalMatch(BaseModel):

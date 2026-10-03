@@ -14,6 +14,14 @@ Section 8 General obligations of Data Fiduciary
 A Data Fiduciary shall implement appropriate technical and organisational measures to ensure effective adherence with the provisions of this Act and protect personal data against breach.
 """
 
+_COMPANIES_ACT_TEXT = """
+Section 3 Formation of company
+A company may be formed for any lawful purpose by seven or more persons, where the company to be formed is to be a public company; or two or more persons, where the company to be formed is to be a private company.
+
+Section 7 Incorporation of company
+There shall be filed with the Registrar within whose jurisdiction the registered office of a company is proposed to be situated, the memorandum and articles of the company duly signed by all the subscribers.
+"""
+
 _DGCL_TEXT = """
 Section 101 Incorporators; how corporation formed; purposes
 Any person, partnership, association or corporation, singly or jointly with others, may incorporate or organize a corporation under this chapter by filing a certificate of incorporation with the Division of Corporations in the Department of State.
@@ -45,6 +53,13 @@ def load_default_legal_index() -> StatuteIndexStore:
         source_url="https://www.meity.gov.in/writereaddata/files/Digital_Personal_Data_Protection_Act_2023.pdf",
         enacted_year=2023,
     )
+    ca_chunks = chunk_statute_document(
+        act_name="Companies Act",
+        jurisdiction="IN",
+        raw_text=_COMPANIES_ACT_TEXT,
+        source_url="https://www.mca.gov.in/content/mca/global/en/acts-rules/ebooks/acts.html?act=NTk2MQ==",
+        enacted_year=2013,
+    )
     dgcl_chunks = chunk_statute_document(
         act_name="Delaware General Corporation Law",
         jurisdiction="US-DE",
@@ -59,5 +74,5 @@ def load_default_legal_index() -> StatuteIndexStore:
         source_url="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32016R0679",
         enacted_year=2016,
     )
-    store.add_chunks(dpdp_chunks + dgcl_chunks + gdpr_chunks)
+    store.add_chunks(dpdp_chunks + ca_chunks + dgcl_chunks + gdpr_chunks)
     return store

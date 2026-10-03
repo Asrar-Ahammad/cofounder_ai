@@ -38,13 +38,13 @@
 - `legal/agent.py` (1 public symbols)
   - `LegalAgent`: Specialist agent for statutory compliance, regulatory RAG, and mandatory citation gating.
 - `legal/evaluate_regulatory_gate.py` (1 public symbols)
-  - `evaluate_statutory_grounding`: Evaluate retrieval confidence to determine whether to answer or strictly abstain.
+  - `evaluate_statutory_grounding`: Evaluate retrieval grounding and citation validity to answer, clarify, or abstain.
 - `legal/retrieve_statutes.py` (1 public symbols)
   - `retrieve_relevant_statutes`: Retrieve authoritative statutory sections matching the legal query and jurisdiction.
 - `legal/state.py` (1 public symbols)
   - `LegalState`: State passing through the Legal and Compliance LangGraph subgraph.
 - `legal/synthesize_legal_memo.py` (1 public symbols)
-  - `synthesize_legal_memorandum`: Generate structured statutory memorandum with explicit section citations.
+  - `synthesize_legal_memorandum`: Generate structured statutory memorandum with explicit section/article citations.
 - `market_intel/__init__.py`
 - `market_intel/agent.py` (1 public symbols)
   - `MarketIntelAgent`: Specialist agent tracking live market trends, competitors, and sentiment.
@@ -102,11 +102,11 @@
 - `web/deploy_sandbox.py` (1 public symbols)
   - `deploy_to_sandbox_environment`: Deploy sanitized landing page to isolated tenant sandbox domain.
 - `web/generate_landing_page.py` (1 public symbols)
-  - `generate_landing_page_html`: Generate responsive MVP landing page HTML with Tailwind styling and lead capture.
+  - `generate_landing_page_html`: Generate responsive MVP landing page HTML with stylesheet styling and escaped inputs.
 - `web/sanitize_html.py` (1 public symbols)
-  - `sanitize_landing_page_html`: Sanitize generated landing page HTML by stripping executable scripts and event handlers.
+  - `sanitize_landing_page_html`: Sanitize generated landing page HTML by stripping executable scripts, handlers, and data URIs.
 - `web/screen_web_content.py` (1 public symbols)
-  - `screen_landing_page_compliance`: Screen landing page copy for regulatory claims and consumer protection compliance.
+  - `screen_landing_page_compliance`: Screen landing page copy for regulatory claims, missing disclosures, and consent issues.
 - `web/state.py` (1 public symbols)
   - `WebAgentState`: State passing through the Web Agent LangGraph subgraph.
 

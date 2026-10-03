@@ -60,14 +60,24 @@ class StatuteIndexStore:
             if not intersection:
                 continue
 
-            score = len(intersection) / len(query_terms)
-            if any(term in chunk.section_title.lower() for term in query_terms):
-                score = min(1.0, score + 0.25)
-            if any(term in chunk.act_name.lower() for term in query_terms):
-                score = min(1.0, score + 0.15)
+            overlap_ratio = len(intersection) / len(query_terms)
+            if overlap_ratio < 0.20:
+                continue
 
+            score = overlap_ratio
+            title_terms = set(re.findall(r"\w+", chunk.section_title.lower()))
+            title_overlap = len(query_terms.intersection(title_terms))
+            if title_overlap > 0:
+                score += 0.15 * (title_overlap / len(query_terms))
+
+            act_terms = set(re.findall(r"\w+", chunk.act_name.lower()))
+            act_overlap = len(query_terms.intersection(act_terms))
+            if act_overlap > 0:
+                score += 0.10 * (act_overlap / len(query_terms))
+
+            score = min(1.0, round(score, 3))
             if score >= min_threshold:
-                results.append(RetrievalMatch(chunk=chunk, score=round(score, 3), match_type="hybrid"))
+                results.append(RetrievalMatch(chunk=chunk, score=score, match_type="hybrid"))
 
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:top_k]

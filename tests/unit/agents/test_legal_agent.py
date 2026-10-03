@@ -74,3 +74,31 @@ async def test_legal_agent_graph_execution() -> None:
     assert final_state["decision"] == "answer"
     assert len(final_state["citation_refs"]) >= 1
     assert "Delaware" in final_state["analysis"]
+
+
+def test_legal_agent_clarification_on_ambiguous_query() -> None:
+    """Verify clarify decision and memorandum when query is ambiguous/borderline."""
+    state = LegalState(
+        tenant_id="t1",
+        venture_id="v1",
+        jurisdiction="IN",
+        query="general regulatory requirements for technology startups",
+        retrieved_chunks=[
+            {
+                "text": "General business registration provisions under national law.",
+                "score": 0.28,
+                "citation": "Companies Act, 2013, Section 3 (2013)",
+                "source_url": "https://www.mca.gov.in/Ministry/pdf/CompaniesAct2013.pdf",
+            }
+        ],
+        citation_refs=["Companies Act, 2013, Section 3 (2013)"],
+    )
+
+    state = evaluate_statutory_grounding(state)
+    assert state.decision == "clarify"
+    assert state.requires_human_counsel is False
+
+    state = synthesize_legal_memorandum(state)
+    assert "CLARIFICATION REQUIRED:" in state.analysis
+    assert "Please clarify the specific regulatory scope" in state.analysis
+    assert "requested statutory scope clarification" in state.summary

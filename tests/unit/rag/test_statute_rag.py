@@ -51,3 +51,32 @@ def test_statute_index_store_search_and_jurisdiction_filter() -> None:
     # Empty match for non-existent topic
     empty_matches = store.search("astronomy telescope orbital decay", jurisdiction="IN")
     assert len(empty_matches) == 0
+
+    # Query for Companies Act 2013
+    ca_matches = store.search("incorporation of company memorandum articles", jurisdiction="IN")
+    assert len(ca_matches) > 0
+    assert any("Companies Act" in m.chunk.act_name for m in ca_matches)
+
+
+def test_chunk_statute_document_extracts_articles() -> None:
+    """Verify regex chunker accurately identifies Article vs Section."""
+    gdpr_sample = """
+Article 5 Principles relating to processing of personal data
+Personal data shall be processed lawfully, fairly and in a transparent manner.
+
+Article 6 Lawfulness of processing
+Processing shall be lawful only if and to the extent that at least one condition applies.
+"""
+    chunks = chunk_statute_document(
+        act_name="GDPR",
+        jurisdiction="EU",
+        raw_text=gdpr_sample,
+        source_url="https://gdpr-info.eu/art-5-gdpr/",
+        enacted_year=2016,
+    )
+    assert len(chunks) == 2
+    assert chunks[0].section_type == "Article"
+    assert chunks[0].section_number == "5"
+    assert chunks[0].citation == "GDPR, Article 5 (2016)"
+    assert chunks[1].section_type == "Article"
+    assert chunks[1].section_number == "6"
