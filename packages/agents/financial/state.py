@@ -1,6 +1,7 @@
 """State definition for Financial Agent subgraph."""
 
 from decimal import Decimal
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -33,4 +34,6 @@ class FinancialState(BaseModel):
     churn_rate_monthly: Decimal = Decimal("5.00")
     metrics: UnitEconomicsMetrics | None = None
     constraints: ConstraintLimits | None = None
+    scenarios: dict[str, Any] = Field(default_factory=dict)
+    assumptions: list[str] = Field(default_factory=list)
     summary: str = ""

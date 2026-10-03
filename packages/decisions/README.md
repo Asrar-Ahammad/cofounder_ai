@@ -27,6 +27,9 @@
 - `definitions/fan_out_event.py` (2 public symbols)
   - `build_event_fanout_question`: Construct Question to decide if an incoming domain event triggers immediate re-planning.
   - `fail_closed_event_fanout`: Return fail-safe option when event fan-out model is unavailable.
+- `definitions/gate_legal_answer.py` (2 public symbols)
+  - `build_gate_legal_question`: Construct Question for determining whether statutory grounding warrants answering or abstaining.
+  - `fail_closed_gate_legal_answer`: Return fail-closed decision when legal retrieval confidence is uncertain.
 - `definitions/judge_trace_quality.py` (2 public symbols)
   - `build_trace_quality_question`: Construct Question to evaluate the quality of an agent execution step.
   - `fail_closed_trace_quality`: Return fail-closed quality assessment when evaluator is down.
@@ -36,6 +39,9 @@
 - `definitions/route_supervisor.py` (2 public symbols)
   - `build_supervisor_routing_question`: Construct Question for routing next task to a specialist agent or human.
   - `fail_closed_supervisor_routing`: Return fail-closed route when supervisor decision is ambiguous or model is down.
+- `definitions/screen_compliance.py` (2 public symbols)
+  - `build_screen_compliance_question`: Construct Question for screening marketing or web copy for regulatory compliance.
+  - `fail_closed_screen_compliance`: Return fail-closed risk rating when compliance screening is uncertain.
 - `definitions/screen_untrusted_content.py` (2 public symbols)
   - `build_screening_question`: Construct Question for screening untrusted inbound text.
   - `fail_closed_content_screening`: Return fail-closed classification when screening model is unavailable.
