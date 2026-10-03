@@ -27,12 +27,24 @@
   - `build_financial_graph`: Construct and compile the Financial LangGraph execution pipeline.
 - `financial/model_unit_economics.py` (1 public symbols)
   - `calculate_unit_economics`: Calculate margins, LTV, CAC payback, and break-even targets.
+- `financial/simulate_scenarios.py` (1 public symbols)
+  - `simulate_financial_scenarios`: Generate best-case, base-case, and worst-case runway and unit economics scenarios.
 - `financial/state.py` (2 public symbols)
   - `UnitEconomicsMetrics`: Calculated unit economics and runway projections.
   - `FinancialState`: State passing through the Financial LangGraph subgraph.
 - `financial/write_constraints.py` (1 public symbols)
   - `formulate_constraint_limits`: Derive versioned venture constraint limits from financial models.
 - `legal/__init__.py`
+- `legal/agent.py` (1 public symbols)
+  - `LegalAgent`: Specialist agent for statutory compliance, regulatory RAG, and mandatory citation gating.
+- `legal/evaluate_regulatory_gate.py` (1 public symbols)
+  - `evaluate_statutory_grounding`: Evaluate retrieval confidence to determine whether to answer or strictly abstain.
+- `legal/retrieve_statutes.py` (1 public symbols)
+  - `retrieve_relevant_statutes`: Retrieve authoritative statutory sections matching the legal query and jurisdiction.
+- `legal/state.py` (1 public symbols)
+  - `LegalState`: State passing through the Legal and Compliance LangGraph subgraph.
+- `legal/synthesize_legal_memo.py` (1 public symbols)
+  - `synthesize_legal_memorandum`: Generate structured statutory memorandum with explicit section citations.
 - `market_intel/__init__.py`
 - `market_intel/agent.py` (1 public symbols)
   - `MarketIntelAgent`: Specialist agent tracking live market trends, competitors, and sentiment.
@@ -85,6 +97,18 @@
 - `validation/synthesize_report.py` (1 public symbols)
   - `synthesize_validation_report`: Synthesize final validation evaluation and recommendation.
 - `web/__init__.py`
+- `web/agent.py` (1 public symbols)
+  - `WebAgent`: Specialist agent generating sanitized landing page prototypes and preview deployments.
+- `web/deploy_sandbox.py` (1 public symbols)
+  - `deploy_to_sandbox_environment`: Deploy sanitized landing page to isolated tenant sandbox domain.
+- `web/generate_landing_page.py` (1 public symbols)
+  - `generate_landing_page_html`: Generate responsive MVP landing page HTML with Tailwind styling and lead capture.
+- `web/sanitize_html.py` (1 public symbols)
+  - `sanitize_landing_page_html`: Sanitize generated landing page HTML by stripping executable scripts and event handlers.
+- `web/screen_web_content.py` (1 public symbols)
+  - `screen_landing_page_compliance`: Screen landing page copy for regulatory claims and consumer protection compliance.
+- `web/state.py` (1 public symbols)
+  - `WebAgentState`: State passing through the Web Agent LangGraph subgraph.
 
 <!-- END GENERATED -->
 

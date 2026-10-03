@@ -93,7 +93,8 @@ python scripts/gen_module_index.py --check
 
 - **Phase 0: Foundations & Substrate (Complete):** Monorepo architecture, Postgres RLS, Redis Streams event bus, Shared Brain, Tool Gateway with bounded idempotency, Approval Service, System One substrate (D1, D2), Next.js 15 UI shell.
 - **Phase 1: Core Intelligence Engine (Complete):** Orchestrator Supervisor graph with milestone tracking, Market Intelligence Agent with signal triage, Validation Agent with TAM/SAM/SOM and citation-backed rubrics, Financial Agent with unit economics & hard constraint code guards, System One Decisions D3–D10, and search/scraper adapters.
-- **Phase 2: Build & Regulatory (Upcoming):** Legal RAG with cited official gazettes, Legal Gating (D11, D12), Web Agent MVP generator, and Monte Carlo simulation sandbox.
+- **Phase 2: Build & Regulatory (Complete):** Legal RAG with cited official gazettes, Legal Answer/Abstain Gate (D11), Web Content Compliance Screening (D12), Web Agent MVP generator with HTML sanitization & sandbox preview, and multi-scenario simulation engine.
+- **Phase 3: Go to Market (Upcoming):** Marketing & Social Agent (Ayrshare/Meta), Sales Agent & CRM, Comment/DM triage (D13, D14), Outreach reply classification (D15, D16), and customer OAuth KMS envelope encryption.
 
 ---
 
