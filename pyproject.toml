@@ -1,0 +1,159 @@
+[project]
+name = "cofunder"
+version = "0.1.0"
+description = "AI startup co-founder suite: a supervisor-led swarm of specialist agents sharing one persistent business brain"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "psycopg[binary]>=3.2.3",
+    "alembic>=1.14.0",
+    "redis>=5.2.0",
+    "httpx>=0.28.0",
+    "tenacity>=9.0.0",
+    "structlog>=24.4.0",
+    "opentelemetry-api>=1.28.0",
+    "opentelemetry-sdk>=1.28.0",
+    "langgraph>=0.2.60",
+    "langchain-core>=0.3.25",
+    "langchain-anthropic>=0.3.1",
+    "langsmith>=0.2.0",
+    "arq>=0.26.1",
+    "cryptography>=44.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "import-linter>=2.1",
+    "types-redis>=4.6.0",
+    "aiosqlite>=0.20.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["packages", "apps"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # Line length handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "."
+explicit_package_bases = true
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = [
+    "langgraph.*",
+    "langchain_core.*",
+    "langchain_anthropic.*",
+    "langsmith.*",
+    "arq.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-ra -q --strict-markers"
+
+[tool.importlinter]
+root_package = "packages"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Core layer independence"
+type = "forbidden"
+source_modules = ["packages.core"]
+forbidden_modules = [
+    "packages.brain",
+    "packages.security",
+    "packages.rag",
+    "packages.integrations",
+    "packages.tools",
+    "packages.approvals",
+    "packages.decisions",
+    "packages.agents",
+    "packages.observability",
+    "apps",
+]
+
+[[tool.importlinter.contracts]]
+name = "Brain, RAG and Security layer boundary"
+type = "forbidden"
+source_modules = [
+    "packages.brain",
+    "packages.rag",
+    "packages.security",
+]
+forbidden_modules = [
+    "packages.integrations",
+    "packages.tools",
+    "packages.approvals",
+    "packages.decisions",
+    "packages.agents",
+    "packages.observability",
+    "apps",
+]
+
+[[tool.importlinter.contracts]]
+name = "Agents cannot import each other"
+type = "independence"
+modules = [
+    "packages.agents.orchestrator",
+    "packages.agents.market_intel",
+    "packages.agents.validation",
+    "packages.agents.financial",
+    "packages.agents.legal",
+    "packages.agents.web",
+    "packages.agents.marketing",
+    "packages.agents.sales",
+    "packages.agents.support",
+    "packages.agents.operations",
+]
