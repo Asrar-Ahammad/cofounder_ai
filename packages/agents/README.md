@@ -61,6 +61,16 @@
 - `market_intel/triage_signal.py` (1 public symbols)
   - `triage_raw_signals`: Triage raw search snippets into categorized market signals.
 - `marketing/__init__.py`
+- `marketing/agent.py` (1 public symbols)
+  - `MarketingAgent`: Specialist agent generating brand-aligned social content and scheduled calendars.
+- `marketing/draft_marketing_copy.py` (1 public symbols)
+  - `draft_social_post_copy`: Generate platform-tailored social copy based on campaign goal and platform.
+- `marketing/review_brand_voice.py` (1 public symbols)
+  - `evaluate_brand_voice_fit`: Evaluate draft marketing copy against brand guidelines and tone norms.
+- `marketing/schedule_marketing_post.py` (1 public symbols)
+  - `schedule_or_publish_post`: Stage marketing post for calendar schedule or publish subject to approval.
+- `marketing/state.py` (1 public symbols)
+  - `MarketingState`: State object passing through the Marketing Agent subgraph.
 - `operations/__init__.py`
 - `orchestrator/__init__.py`
 - `orchestrator/agent.py` (1 public symbols)
@@ -77,6 +87,18 @@
   - `Milestone`: Venture milestone tracking progress toward the north-star goal.
   - `OrchestratorState`: Master state passing through the Orchestrator Supervisor.
 - `sales/__init__.py`
+- `sales/agent.py` (1 public symbols)
+  - `SalesAgent`: Specialist agent qualifying leads, drafting outreach, and triaging replies.
+- `sales/draft_outreach_email.py` (1 public symbols)
+  - `draft_personalized_outreach`: Generate personalized outreach email for qualified prospects.
+- `sales/process_reply.py` (1 public symbols)
+  - `process_inbound_outreach_reply`: Classify prospect reply and execute immediate suppression on opt-outs.
+- `sales/qualify_prospect.py` (1 public symbols)
+  - `qualify_sales_prospect`: Evaluate prospect profile against venture Ideal Customer Profile.
+- `sales/state.py` (1 public symbols)
+  - `SalesState`: State object passing through the Sales Agent LangGraph subgraph.
+- `sales/triage_inbound_message.py` (1 public symbols)
+  - `triage_inbound_interaction`: Triage incoming comment or DM into actionable business or crisis categories.
 - `support/__init__.py`
 - `validation/__init__.py`
 - `validation/agent.py` (1 public symbols)

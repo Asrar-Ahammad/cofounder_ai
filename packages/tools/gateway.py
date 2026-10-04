@@ -8,6 +8,7 @@ from typing import Any
 from packages.approvals.service import ApprovalService
 from packages.core.context import AgentContext
 from packages.core.errors import ApprovalRequired, PolicyViolation
+from packages.core.suppression import is_email_suppressed
 from packages.tools.registry import ToolRegistry, tool_registry
 
 MAX_IDEMPOTENCY_CACHE_SIZE = 1000
@@ -74,6 +75,10 @@ class ToolGateway:
             raise PolicyViolation(f"Agent '{ctx.agent.name}' is unauthorized to call tool '{name}'")
 
         validated_args = spec.args_model.model_validate(raw_args)
+
+        recipient = getattr(validated_args, "recipient", None) or getattr(validated_args, "recipient_email", None)
+        if recipient and is_email_suppressed(ctx.tenant_id, str(recipient)):
+            raise PolicyViolation(f"Recipient '{recipient}' is on the suppression list. Outbound communication blocked.")
 
         if spec.policy_check:
             spec.policy_check(ctx.tenant_id, ctx.venture_id, validated_args)
