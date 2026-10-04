@@ -31,6 +31,9 @@
 - `definitions/classify_outreach_reply.py` (2 public symbols)
   - `build_classify_outreach_reply_question`: Construct Question to classify the sentiment and intent of an outreach reply.
   - `fail_closed_classify_outreach_reply`: Return fail-closed classification when reply intent is ambiguous.
+- `definitions/detect_frustration.py` (2 public symbols)
+  - `build_detect_frustration_question`: Construct Question evaluating customer frustration and churn severity.
+  - `fail_closed_detect_frustration`: Return fail-closed rating when customer sentiment is uncertain.
 - `definitions/fan_out_event.py` (2 public symbols)
   - `build_event_fanout_question`: Construct Question to decide if an incoming domain event triggers immediate re-planning.
   - `fail_closed_event_fanout`: Return fail-safe option when event fan-out model is unavailable.
@@ -43,6 +46,9 @@
 - `definitions/qualify_lead.py` (2 public symbols)
   - `build_qualify_lead_question`: Construct Question to qualify an inbound or outbound sales lead against the ICP.
   - `fail_closed_qualify_lead`: Return fail-closed rating when lead qualification is uncertain.
+- `definitions/route_inbound_message.py` (2 public symbols)
+  - `build_route_inbound_message_question`: Construct Question evaluating inbound customer intent.
+  - `fail_closed_route_inbound_message`: Return fail-closed route when intent evaluation is uncertain.
 - `definitions/route_model_tier.py` (2 public symbols)
   - `build_model_tier_question`: Construct Question for choosing LLM tier based on task complexity and budget.
   - `fail_closed_model_tier`: Return fail-safe tier when decision model is unavailable.

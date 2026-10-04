@@ -100,6 +100,20 @@
 - `sales/triage_inbound_message.py` (1 public symbols)
   - `triage_inbound_interaction`: Triage incoming comment or DM into actionable business or crisis categories.
 - `support/__init__.py`
+- `support/agent.py` (1 public symbols)
+  - `SupportAgent`: Specialist agent handling 24/7 inbound inquiries, sentiment triage, and KB Q&A.
+- `support/answer_grounded.py` (1 public symbols)
+  - `answer_from_approved_knowledge`: Retrieve grounded answer strictly from approved venture knowledge sources.
+- `support/detect_sentiment.py` (1 public symbols)
+  - `evaluate_customer_sentiment`: Analyze customer message for frustration or severe churn threat.
+- `support/escalate_ticket.py` (1 public symbols)
+  - `escalate_to_founder`: Escalate customer issue to founder inbox and prepare customer notification.
+- `support/format_reply.py` (1 public symbols)
+  - `format_customer_response`: Format finalized customer-facing response text.
+- `support/route_intent.py` (1 public symbols)
+  - `route_customer_intent`: Classify customer message into actionable service pathways.
+- `support/state.py` (1 public symbols)
+  - `SupportState`: State object passing through the Support Agent subgraph.
 - `validation/__init__.py`
 - `validation/agent.py` (1 public symbols)
   - `ValidationAgent`: Specialist agent calculating TAM/SAM/SOM and Go/No-Go feasibility.

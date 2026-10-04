@@ -29,13 +29,16 @@
   - `GmailEmailAdapter`: Adapter for sending personalized outreach emails via Gmail API.
 - `adapters/tavily_search.py` (1 public symbols)
   - `TavilySearchAdapter`: Adapter for executing web search queries via Tavily API.
-- `ports.py` (6 public symbols)
+- `adapters/whatsapp.py` (1 public symbols)
+  - `WhatsAppCloudAdapter`: Adapter for sending WhatsApp messages via Meta Graph Cloud API.
+- `ports.py` (7 public symbols)
   - `SocialPublisher`: Port for publishing social media content across platforms.
   - `EmailSender`: Port for sending transactional and outreach emails.
   - `WebSearcher`: Port for executing web searches and trend queries.
   - `WebScraper`: Port for extracting cleaned content from web pages.
   - `PaymentGateway`: Port for billing and subscription management.
   - `CalendarScheduler`: Port for calendar booking and availability synchronization.
+  - `InstantMessenger`: Port for two-way chat messaging across platforms (e.g. WhatsApp, Webchat).
 
 <!-- END GENERATED -->
 

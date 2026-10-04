@@ -172,3 +172,29 @@ class CalendarScheduler(Protocol):
             dict[str, Any]: Confirmed booking details including booking_id and meeting_url.
         """
         ...
+
+
+class InstantMessenger(Protocol):
+    """Port for two-way chat messaging across platforms (e.g. WhatsApp, Webchat)."""
+
+    async def send_message(
+        self,
+        *,
+        tenant_id: str,
+        recipient_id: str,
+        text: str,
+        idempotency_key: str,
+    ) -> str:
+        """Send a direct message to a customer or prospect.
+
+        Args:
+            tenant_id: Tenant UUID string.
+            recipient_id: Recipient phone number or chat identifier.
+            text: Message body text.
+            idempotency_key: Unique idempotency key.
+
+        Returns:
+            str: Outbound message tracking or delivery identifier.
+        """
+        ...
+

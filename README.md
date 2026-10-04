@@ -93,8 +93,8 @@ python scripts/gen_module_index.py --check
 
 - **Phase 0: Foundations & Substrate (Complete):** Monorepo architecture, Postgres RLS, Redis Streams event bus, Shared Brain, Tool Gateway with bounded idempotency, Approval Service, System One substrate (D1, D2), Next.js 15 UI shell.
 - **Phase 1: Core Intelligence Engine (Complete):** Orchestrator Supervisor graph with milestone tracking, Market Intelligence Agent with signal triage, Validation Agent with TAM/SAM/SOM and citation-backed rubrics, Financial Agent with unit economics & hard constraint code guards, System One Decisions D3–D10, and search/scraper adapters.
-- **Phase 3: Go to Market (Complete):** Marketing & Social Agent (Ayrshare/Meta), Sales Agent & CRM, Comment/DM triage (D13), Brand voice fit (D14), Lead qualification (D15), Outreach reply classification (D16), immediate unsubscribe suppression at the Tool Gateway, and customer OAuth KMS envelope encryption.
-- **Phase 4: Autonomous Inbound & Customer Operations (Upcoming):** Dedicated webhook receiver (Meta, Stripe), Support & Reception Agent (WhatsApp Cloud API / Web), Frustration & Churn detection (D17, D18), and Grounded KB Q&A.
+- **Phase 4: Autonomous Inbound & Customer Operations (Complete):** Dedicated webhook receiver deployable (`apps/webhooks`) with Meta `X-Hub-Signature-256` and Stripe signature verification, Support & Reception Agent (WhatsApp Cloud API / Web), System One Inbound Routing (D17) and Frustration/Churn Detection (D18), grounded KB Q&A with strict citations, and fail-safe founder escalation loops.
+- **Phase 5: Scale, Enterprise Readiness & Model Migration (Upcoming):** Operations & Inventory Agent (D19), System One open-source model migration (SemIf/Kev canary cutover), Twilio Voice, multi-region data residency (India DPDP & GDPR), and SOC 2 Type 1 evidence automation.
 
 ---
 

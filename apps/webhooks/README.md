@@ -11,6 +11,13 @@
 ### Files & Manifest
 
 - `__init__.py`
+- `main.py` (6 public symbols)
+  - `verify_meta_signature`: Validate Meta X-Hub-Signature-256 header in constant time.
+  - `verify_stripe_signature`: Validate Stripe-Signature header timestamp and HMAC-SHA256 signature.
+  - `health_check`: Liveness health check endpoint.
+  - `verify_meta_webhook`: Handle Meta WhatsApp webhook subscription verification challenge.
+  - `receive_meta_webhook`: Ingest WhatsApp and Meta webhooks with HMAC-SHA256 verification.
+  - `receive_stripe_webhook`: Ingest Stripe subscription and billing webhooks with signature verification.
 
 <!-- END GENERATED -->
 
