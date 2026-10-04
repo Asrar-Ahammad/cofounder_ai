@@ -1,5 +1,9 @@
 """Gmail API email delivery adapter conforming to EmailSender port."""
 
+import asyncio
+import base64
+from email.message import EmailMessage
+
 import httpx
 
 from packages.core.errors import ExternalServiceError
@@ -23,6 +27,23 @@ class GmailEmailAdapter(EmailSender):
         """
         self.oauth_token = oauth_token
         self.base_url = base_url
+
+    def _build_raw_mime_message(
+        self,
+        recipient: str,
+        subject: str,
+        body_text: str,
+        body_html: str | None = None,
+    ) -> str:
+        """Build RFC 2822 MIME message encoded as URL-safe base64 without padding."""
+        msg = EmailMessage()
+        msg["To"] = recipient
+        msg["Subject"] = subject
+        msg.set_content(body_text)
+        if body_html:
+            msg.add_alternative(body_html, subtype="html")
+        raw_bytes = msg.as_bytes()
+        return base64.urlsafe_b64encode(raw_bytes).decode("utf-8").rstrip("=")
 
     async def send_email(
         self,
@@ -53,19 +74,14 @@ class GmailEmailAdapter(EmailSender):
         if not self.oauth_token or self.oauth_token.startswith("gmail-placeholder"):
             return f"msg-simulated-{idempotency_key[:12]}"
 
-        validate_egress_url(self.base_url)
+        await asyncio.to_thread(validate_egress_url, self.base_url)
         headers = {
             "Authorization": f"Bearer {self.oauth_token}",
             "Content-Type": "application/json",
             "X-Tenant-Id": tenant_id,
         }
-        payload = {
-            "raw_recipient": recipient,
-            "subject": subject,
-            "body": body_text,
-            "body_html": body_html,
-            "idempotency_key": idempotency_key,
-        }
+        encoded_raw = self._build_raw_mime_message(recipient, subject, body_text, body_html)
+        payload = {"raw": encoded_raw}
 
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
@@ -75,3 +91,4 @@ class GmailEmailAdapter(EmailSender):
                 return str(data.get("id", idempotency_key))
         except Exception as exc:
             raise ExternalServiceError(f"Gmail API error sending to {recipient}: {exc}") from exc
+

@@ -1,5 +1,7 @@
 """Ayrshare multi-platform social publishing adapter conforming to SocialPublisher port."""
 
+import asyncio
+
 import httpx
 
 from packages.core.errors import ExternalServiceError
@@ -51,7 +53,7 @@ class AyrshareSocialAdapter(SocialPublisher):
         if not self.api_key or self.api_key.startswith("ayrshare-placeholder"):
             return f"https://{platform}.com/post/simulated-{idempotency_key[:12]}"
 
-        validate_egress_url(self.base_url)
+        await asyncio.to_thread(validate_egress_url, self.base_url)
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",

@@ -5,7 +5,10 @@ from typing import Any
 from langgraph.graph import END, START, StateGraph
 
 from packages.agents.sales.draft_outreach_email import draft_personalized_outreach
-from packages.agents.sales.process_reply import process_inbound_outreach_reply
+from packages.agents.sales.process_reply import (
+    _UNSUBSCRIBE_PATTERNS,
+    process_inbound_outreach_reply,
+)
 from packages.agents.sales.qualify_prospect import qualify_sales_prospect
 from packages.agents.sales.state import SalesState
 from packages.agents.sales.triage_inbound_message import triage_inbound_interaction
@@ -32,11 +35,14 @@ class SalesAgent:
         builder.add_node("triage_inbound", triage_inbound_interaction)
 
         def route_by_inbound_type(state: SalesState) -> str:
+            if state.reply_text and bool(_UNSUBSCRIBE_PATTERNS.search(state.reply_text)):
+                return "process_reply"
             if state.inbound_type in ("comment", "dm"):
                 return "triage_inbound"
             if state.reply_text:
                 return "process_reply"
             return "qualify_lead"
+
 
         builder.add_conditional_edges(
             START,

@@ -14,9 +14,11 @@ class MarketingState(BaseModel):
     brand_voice_guidelines: str = "Professional, authoritative, transparent, and founder-focused."
     platform: str = "linkedin"  # 'linkedin', 'x', 'instagram', 'facebook'
     draft_copy: str = ""
+    media_url: str | None = None
     brand_fit_decision: str = "pending"  # 'pending', 'pass', 'revise'
     scheduled_time: str | None = None
     published_id: str | None = None
     needs_approval: bool = True
     summary: str = ""
     tags: list[str] = Field(default_factory=list)
+

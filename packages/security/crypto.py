@@ -8,6 +8,8 @@ from typing import Any
 
 from cryptography.fernet import Fernet
 
+from packages.core.config import get_settings
+
 
 def _derive_tenant_key(tenant_id: str, context: dict[str, Any] | None = None) -> bytes:
     """Derive deterministic 32-byte key from tenant ID and encryption context.
@@ -19,7 +21,16 @@ def _derive_tenant_key(tenant_id: str, context: dict[str, Any] | None = None) ->
     Returns:
         bytes: Base64-urlsafe encoded 32-byte Fernet key.
     """
-    master_secret = os.getenv("KMS_MASTER_SECRET", "cofunder_default_kms_master_key_32b")
+    master_secret = os.getenv("KMS_MASTER_SECRET")
+    settings = get_settings()
+    if not master_secret:
+        if settings.environment != "development":
+            if not settings.secret_key or settings.secret_key.startswith("dev-secret-key"):
+                raise ValueError("KMS master key or SECRET_KEY must be configured in non-development environments")
+            master_secret = settings.secret_key
+        else:
+            master_secret = settings.secret_key or "cofunder_default_kms_master_key_32b"
+
     context_str = json.dumps(context or {}, sort_keys=True)
     raw = f"{master_secret}:{tenant_id}:{context_str}".encode()
     digest = hashlib.sha256(raw).digest()
